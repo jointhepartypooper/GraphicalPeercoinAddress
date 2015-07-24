@@ -1,0 +1,19 @@
+{
+  "name": "GraphicalPeercoinAddress",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Peercoin address explained. Forked from Royal Fork",
+  "scripts": {
+    "build-js": "browserify mainapp.js > public/app.js"
+  },
+  "keywords": [
+    "peercoin"
+  ],
+  "dependencies": {
+	"jquery"  : "2.1.1"
+  },
+  "devDependencies": {
+    "browserify": "latest"
+  }  
+}
+
