@@ -461,14 +461,14 @@ svg.green polygon {
 
  
  <div class="private">
-<h2 class="section-header">Generate Private Key</h2>
+<h2 class="section-header">Generate Private Key (compressed)</h2>
 <div class="private-key">
   <div class="container">
     type something<input id="passphrase" type="text" name="passphrase" placeholder="Type passphrase here..." />
  <br/>
     <div class="hex-container hex-padding pk"></div>
     <div class="information information-arrow-left-bottom step1">
-   <span class="title">1.</span> Private key is 256 random bits.</div>
+   <span class="title">1.</span> Private key is 256 random bits from SHA256(passphrase).</div>
   </div>
 </div>
 
@@ -487,14 +487,14 @@ svg.green polygon {
       <div class="information step4 information-arrow-bottom-left"><span class="title">4.</span> Append checksum. Checksum is the first 4 bytes of double sha256 hash of whatever is being checkedsum'ed.</div>
     </div>
   </div>
-
+<br/>Private Key WIF (compressed, 52 characters base58, starts with a 'U'):
   <div>
     <div class="container">
      
       <div>
         <div class="private-wif hex-container hex-padding"></div>
       </div>
-      <div class="information information-arrow-left-top step5"><span class="title">5.</span> Base58 encoded data is easier to read and manage.  The "double-arrows" indicate this is reversible.</div>
+      <div class="information information-arrow-left-top step5"><span class="title">5.</span> Base58 encoded data is easier to read and manage.  Base58 encoding is reversible.</div>
     </div>
   </div>
 </div>
@@ -533,14 +533,14 @@ svg.green polygon {
  
   <div class="information step7"><span class="title">7.</span> Use parity of y coordinate and full x coordinate to represent the public key.</div>
 </div>
-<br/><br/><br/><br/><br/> 
+<br/><br/><br/><br/><br/>
 <div>
   <div class="container">
      
     <div class="ripe-hash">
       <div class="ripe160 hex-container hex-padding">N/A</div>
     </div>
-    <div class="information step8 information-arrow-left-top"><span class="title">8.</span> Hash public key twice.  This obfuscates the public key and shortens it.</div>
+    <div class="information step8 information-arrow-left-top"><span class="title">8.</span> Hash public key twice  SHA256(RIPEMD160(step 7)).  This obfuscates the public key and shortens it.</div>
   </div>
 </div>
 </div>
@@ -556,13 +556,14 @@ svg.green polygon {
     <div class="information information-arrow-bottom-middle step10"><span class="title">10.</span> Append checksum (same method as step 4)</div>
   </div>
   <div>
+<br/>
     <div class="container">
        
       <div>
         <div class="hex-container hex-padding public-address">N/A</div>
       </div>
       <div class="information information-arrow-left-top step11"><span class="title">11.</span> After another base58 encoding, we have our public address :)</div>
-    </div>
+    </div><div id="qr"></div>
   </div>
 </div>
 </div>

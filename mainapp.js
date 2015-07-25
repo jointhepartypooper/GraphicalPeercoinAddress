@@ -4,19 +4,21 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
- 
 //var $ = require('jquery');
 var BigInteger = require('./lib/BigInteger');
 var Peercoin = require('./lib/Peercoin');  
 var Base58 = require('./lib/Base58'); 
-var priv_key = "e47eaac6a5e0cb54c4ca0448f9bce8ba48ce3da3b6d998c5f89066db64301616";
-var thing ="0425009f42704de1327c3290df619a309f7029ec5f39a62f1fc5be3f0c2ed6a5e47dd3ce11e32e027bf18179508d7dffdf00b96f91597097b4bd7125faa68dc845";
+var ECurve = require('./lib/ECurve'); 
+
 var zeroes = "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
 
 function init() {
+  var p="correct horse battery staple";
+  $("#passphrase").val(p);
+  handleInp(Peercoin.Crypto.SHA256(p, null));
+  
   $("#passphrase").on("input", passphraseChanged);
   
-  passphraseChanged();
 }
 
 function passphraseChanged (evt) {
@@ -26,8 +28,10 @@ function passphraseChanged (evt) {
   } else {
     phraseSHA = Peercoin.Crypto.SHA256(evt.currentTarget.value, null);
   }
-
-  // show private key
+  handleInp(phraseSHA);
+}
+function handleInp(phraseSHA){
+    // show private key
   $(".pk").text(phraseSHA);
 
   //display private key things
@@ -36,14 +40,13 @@ function passphraseChanged (evt) {
   //display public key things (this will call public address things as well)
   displayPublicKeyAndAddress(phraseSHA);
 }
-
 // input is private key hex
 function displayPublicKeyAndAddress (hx) {
 
   // convert to int
   var privateKeyBN = BigInteger.fromByteArrayUnsigned(Peercoin.Crypto.hexToBytes(hx));
   if (privateKeyBN > 0) {
-    var pubKey = getPublicKey(privateKeyBN);
+    var pubKey = ECurve.getPublicKey(privateKeyBN);
     $(".public-x").addClass("hex-container");
     $(".public-y").addClass("hex-container");
     $(".public-x").text(pubKey.x.toString());
@@ -103,14 +106,14 @@ function displayPublicAddress (hx) {
   $(".ripe160").text(hash160);
 
   var hashAndBytes = Peercoin.Crypto.hexToBytes(hash160);
-  hashAndBytes.unshift(0x37);
+  hashAndBytes.unshift(Peercoin.Address.networkVersion);//Peercoin Public Address lead Hex value 
   var versionAndRipe = Peercoin.Crypto.bytesToHex(hashAndBytes);
   var check = computeChecksum(versionAndRipe);
   $(".address-checksum").text(check.checksum);
 
   var address = Base58.encode(Peercoin.Crypto.hexToBytes(versionAndRipe + check.checksum));
   $(".public-address").text(address);
-
+  $("#qr").html('<img src="http://chart.apis.google.com/chart?cht=qr&chl='+address+'&chs=220x220" border="0" alt="Peercoin Address" />');
 }
 
 // input is private key hex
@@ -126,40 +129,7 @@ function displayPrivateKey (hx) {
   var address = Base58.encode(Peercoin.Crypto.hexToBytes(pkWIF));
   $(".private-wif").text(address);
 }
-
-
-function fromHex(e) {
-   return new BigInteger(e, 16)
-}
-
-function secp256k1() {
-   var e = fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2F"),
-   t = BigInteger.ZERO,
-   n = fromHex("7"),
-   r = fromHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141"),
-   i = BigInteger.ONE,
-   s = new Peercoin.ECCurveFp(e, t, n),
-   o = s.decodePointHex("0479BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8");
-   return new Peercoin.X9ECParameters(s, o, r, i)
-}
-
-
-
-// private key converted to big number
-function getPublicKey (bn) {
-  var curve = secp256k1();
-  var curvePt = curve.getG().multiply(bn);
-  var x = curvePt.getX().toBigInteger();
-  var y = curvePt.getY().toBigInteger();
-
-  // returns x,y as big ints
-  return {
-    x: Peercoin.Crypto.bytesToHex(Peercoin.integerToBytes(x, 32)),
-    y: Peercoin.Crypto.bytesToHex(Peercoin.integerToBytes(y, 32)),
-    yParity: y.isEven() ? "even" : "odd"
-  }
-}
-
+ 
 function computeChecksum (hx) {
   var firstSHA = Peercoin.Crypto.SHA256(Peercoin.Crypto.hexToBytes(hx));
   var secondSHA = Peercoin.Crypto.SHA256(Peercoin.Crypto.hexToBytes(firstSHA));
