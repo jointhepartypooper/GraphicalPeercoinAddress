@@ -469,7 +469,7 @@ svg.green polygon {
     <div class="hex-container hex-padding pk"></div>
     <div class="information information-arrow-left-bottom step1">
    <span class="title">1.</span> Private key is 256 random bits from SHA256(passphrase).</div>
-  </div>
+  </div><div style="font-size: 10px;"><span>Base 6 notation: </span><span id="base6"></span></div> 
 </div>
 
 <div class="wif-container">
@@ -492,13 +492,18 @@ svg.green polygon {
     <div class="container">
      
       <div>
-        <div class="private-wif hex-container hex-padding"></div>
+        <div class="private-wif hex-container hex-padding" style="text-transform: none;"></div>
       </div>
       <div class="information information-arrow-left-top step5"><span class="title">5.</span> Base58 encoded data is easier to read and manage.  Base58 encoding is reversible.</div>
     </div>
   </div>
 </div>
 </div>
+
+
+
+
+
 
 <div class="public">
 <h2 class="section-header">Generate Public Key (compressed)</h2>

@@ -34,6 +34,8 @@ function handleInp(phraseSHA){
     // show private key
   $(".pk").text(phraseSHA);
 
+  $("#base6").text(BigInteger.fromByteArrayUnsigned(Peercoin.Crypto.hexToBytes(phraseSHA)).toRadix(6));
+  
   //display private key things
   displayPrivateKey(phraseSHA);
 
