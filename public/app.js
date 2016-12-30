@@ -2552,7 +2552,7 @@ var zeroes = "000000000000000000000000000000000000000000000000000000000000000000
 function init() {
   var p="correct horse battery staple";
   $("#passphrase").val(p);
-  handleInp(Peercoin.Crypto.SHA256(p, null));
+  handleInp(Peercoin.Crypto.SHA256(p, null), p);
   
   $("#passphrase").on("input", passphraseChanged);
   
@@ -2565,9 +2565,14 @@ function passphraseChanged (evt) {
   } else {
     phraseSHA = Peercoin.Crypto.SHA256(evt.currentTarget.value, null);
   }
-  handleInp(phraseSHA);
+  handleInp(phraseSHA, evt.currentTarget.value);
 }
-function handleInp(phraseSHA){
+
+function isSHA(str){
+  return str.match(/^[a-f0-9]{64}$/i) !== null;
+}
+
+function handleInp(phraseSHA, rawinput){
     // show private key
   $(".pk").text(phraseSHA);
 
@@ -2577,10 +2582,10 @@ function handleInp(phraseSHA){
   displayPrivateKey(phraseSHA);
 
   //display public key things (this will call public address things as well)
-  displayPublicKeyAndAddress(phraseSHA);
+  displayPublicKeyAndAddress(phraseSHA, rawinput);
 }
 // input is private key hex
-function displayPublicKeyAndAddress (hx) {
+function displayPublicKeyAndAddress (hx, rawinput) {
 
   // convert to int
   var privateKeyBN = BigInteger.fromByteArrayUnsigned(Peercoin.Crypto.hexToBytes(hx));
@@ -2637,6 +2642,24 @@ function displayPublicKeyAndAddress (hx) {
     $(".address-checksum").text("");
     $(".public-address").text("N/A");
   }
+
+  if (isSHA(rawinput)) {
+    var privateKeyBNP2TH = BigInteger.fromByteArrayUnsigned(Peercoin.Crypto.hexToBytes(rawinput));
+    var pubKeyP2TH = ECurve.getPublicKey(privateKeyBNP2TH);
+    var pub_keyP2TH = ((pubKeyP2TH.yParity === "even") ? "02" : "03") + pubKeyP2TH.x.toString();    
+    var sha = Peercoin.Crypto.SHA256(Peercoin.Crypto.hexToBytes(pub_keyP2TH), null);
+    var hash160 = Peercoin.Crypto.RIPEMD160(Peercoin.Crypto.hexToBytes(sha), null);
+    var hashAndBytes = Peercoin.Crypto.hexToBytes(hash160);
+    hashAndBytes.unshift(Peercoin.Address.networkVersion);//Peercoin Public Address lead Hex value 
+    var versionAndRipe = Peercoin.Crypto.bytesToHex(hashAndBytes);
+    var check = computeChecksum(versionAndRipe);
+    var address = Base58.encode(Peercoin.Crypto.hexToBytes(versionAndRipe + check.checksum));
+    $("#p2th").text(address);
+
+  }else{
+    $("#p2th").text('input not a valid txid');
+  }
+
 }
 
 function displayPublicAddress (hx) {
