@@ -2654,7 +2654,12 @@ function displayPublicKeyAndAddress (hx, rawinput) {
     var versionAndRipe = Peercoin.Crypto.bytesToHex(hashAndBytes);
     var check = computeChecksum(versionAndRipe);
     var address = Base58.encode(Peercoin.Crypto.hexToBytes(versionAndRipe + check.checksum));
-    $("#p2th").text(address);
+    
+    var pkWIF = "B7" + rawinput + "01"; //compressionflag
+    var checkpr = computeChecksum(pkWIF);
+    var addresspriv = Base58.encode(Peercoin.Crypto.hexToBytes(pkWIF + checkpr.checksum));
+
+    $("#p2th").text(address+'   '+addresspriv);
 
   }else{
     $("#p2th").text('input not a valid txid');
