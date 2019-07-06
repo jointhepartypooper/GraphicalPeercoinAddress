@@ -10,7 +10,7 @@
     "peercoin"
   ],
   "dependencies": {
-	"jquery"  : "2.1.1"
+    "jquery": ">=3.4.0"
   },
   "devDependencies": {
     "browserify": "latest"
